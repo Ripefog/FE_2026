@@ -1,0 +1,22 @@
+# 🚀 Next.js Project
+
+This project is built with [Next.js](https://nextjs.org), bootstrapped using [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+---
+
+## 📦 Tech Stack
+- ⚡ [Next.js](https://nextjs.org) – React framework for production
+- 🎨 [Tailwind CSS](https://tailwindcss.com) – Utility-first CSS framework *(if you're using it)*
+- 🌀 [TypeScript](https://www.typescriptlang.org/) – Type-safe JavaScript *(if enabled)*
+- 🔤 [Geist Font](https://vercel.com/font) via [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
+
+---
+
+## 🛠 Getting Started
+
+Clone the repository and install dependencies:
+
+```bash
+git clone <your-repo-url>
+cd <your-project-name>
+npm install

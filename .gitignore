@@ -1,0 +1,54 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js build output
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---- secrets / credentials — NEVER commit ----
+.env*
+!.env.example
+service-account.json
+
+# vercel
+.vercel
+
+# typescript (auto-generated)
+*.tsbuildinfo
+next-env.d.ts
+
+# keep asset/data folder structure, ignore their content
+public/assets/*
+!public/assets/.gitkeep
+public/data/*
+!public/data/.gitkeep
+
+# local data
+src/itemData.json
+
+# archives / windows shortcuts
+*.zip
+*.lnk
