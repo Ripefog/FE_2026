@@ -177,7 +177,7 @@ export default function Search() {
                 <MenuItem value={"Văn Huấn"}>Huấn</MenuItem>
                 <MenuItem value={"Minh Trí"}>Trí</MenuItem>
                 <MenuItem value={"Ngọc Minh"}>Minh</MenuItem>
-                <MenuItem value={"Hoàng Anh"}>Anh</MenuItem>
+                <MenuItem value={"Văn Nam"}>Nam</MenuItem>
                 <MenuItem value={""}>Full database</MenuItem>
                 {/* <MenuItem value={"all"}>Full database</MenuItem> */}
               </Select>

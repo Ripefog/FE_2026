@@ -30,7 +30,7 @@ export default function LoginPage() {
     }, [router]);
 
     const handleLogin = () => {
-        const allowedUsers = ["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Hoàng Anh"];
+        const allowedUsers = ["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Văn Nam"];
 
         if (!allowedUsers.includes(username)) {
             setError(true);
@@ -68,7 +68,7 @@ export default function LoginPage() {
                         }
                         }}
                     >
-                        {["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Hoàng Anh"].map((name) => (
+                        {["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Văn Nam"].map((name) => (
                             <FormControlLabel
                                 key={name}
                                 value={name}

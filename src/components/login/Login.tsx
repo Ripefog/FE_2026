@@ -19,7 +19,7 @@ export default function Login({
     const [message, setMessage] = useState("")
     const [error, setError] = useState(false)
     const handleLogin = async () => {
-        const allowedUsers = ["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Hoàng Anh"];
+        const allowedUsers = ["Duy Khương", "Văn Huấn", "Minh Trí", "Ngọc Minh", "Văn Nam"];
 
         if (!allowedUsers.includes(username)) {
             setError(true)
