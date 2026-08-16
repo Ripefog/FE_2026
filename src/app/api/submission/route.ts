@@ -3,20 +3,15 @@ import fs from "fs";
 import path from "path";
 import { google } from "googleapis";
 import archiver from "archiver";
-import serviceAccount from "../../../../service-account.json";
-
-const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID as string;
+import { getSheetsAuth } from "@/lib/googleAuth";
 
 export async function GET() {
   try {
+    const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
     if (!SPREADSHEET_ID) throw new Error("Missing GOOGLE_SHEET_ID");
 
     // Auth Google Sheets API
-    const auth = new google.auth.JWT({
-      email: serviceAccount.client_email,
-      key: serviceAccount.private_key,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
+    const auth = getSheetsAuth();
 
     await auth.authorize();
     const sheets = google.sheets({ version: "v4", auth });

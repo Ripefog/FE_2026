@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
-import serviceAccount from "../../../../service-account.json";
+import { getSheetsAuth } from "@/lib/googleAuth";
 
 export async function GET() {
   try {
     const spreadsheetId = process.env.GOOGLE_SHEET_ID;
     if (!spreadsheetId) throw new Error("Missing GOOGLE_SHEET_ID");
 
-    const auth = new google.auth.JWT({
-      email: serviceAccount.client_email,
-      key: serviceAccount.private_key.replace(/\\n/g, "\n"),
-      scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-    });
+    const auth = getSheetsAuth();
 
     await auth.authorize();
     const sheets = google.sheets({ version: "v4", auth });
