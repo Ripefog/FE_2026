@@ -61,6 +61,37 @@ export default function Check() {
   const buildKeyframeId = (vId: string, secs: number): string =>
     `${vId}_${padTimestamp(secs)}s.jpg`;
 
+  // Lấy số giây từ tên file keyframe thật: "L21_V001_0012.70s.jpg" -> 12.7
+  const secsFromFilename = (filename: string): number | null => {
+    const m = filename.match(/_(\d+(?:\.\d+)?)s\.jpg$/i);
+    return m ? parseFloat(m[1]) : null;
+  };
+
+  // Tìm keyframe THẬT (theo assetsIndex) gần nhất với mốc giây nhập vào.
+  // Tránh 404 khi nhập timestamp không trùng đúng mốc được sample của dataset.
+  const nearestKeyframeId = (vId: string, secs: number): string => {
+    const folder = getFirstPart(vId);
+    const group = getFirstTwoParts(vId);
+    let files: string[] = [];
+    try {
+      files = assetsIndex?.[folder]?.[group]?.["_files"] || [];
+    } catch {
+      files = [];
+    }
+    let best: string | null = null;
+    let bestDiff = Infinity;
+    for (const f of files) {
+      const t = secsFromFilename(f);
+      if (t === null) continue;
+      const diff = Math.abs(t - secs);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = f;
+      }
+    }
+    return best ?? buildKeyframeId(vId, secs); // fallback: ghép tên như cũ
+  };
+
   // Lấy toàn bộ ảnh thuộc group (video)
   const listGroupImages = (vId: string): string[] => {
     if (!assetsIndex) return [];
@@ -79,7 +110,8 @@ export default function Check() {
   const handleLoad = () => {
     if (!videoId) return;                       // cần videoId
     const secs = normalizeSeconds(timestamp);   // rỗng -> 0
-    const kfId = buildKeyframeId(videoId, secs);
+    const kfId = nearestKeyframeId(videoId, secs); // keyframe thật gần nhất
+    const shownSecs = secsFromFilename(kfId) ?? secs;
 
     const folder = getFirstPart(videoId);
     const basePath = `/assets/${folder}/${videoId}`;
@@ -89,7 +121,7 @@ export default function Check() {
 
     setGroupImages(group);
     setOpenImage({ img: fullImagePath, title: kfId });
-    setCurrentTimestamp(secs);                  // đồng bộ transcript
+    setCurrentTimestamp(shownSecs);             // đồng bộ transcript theo keyframe hiển thị
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
