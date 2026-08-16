@@ -11,8 +11,13 @@ import {
   Paper,
   CircularProgress,
   Box,
-  Chip
+  Chip,
+  Button,
+  TextField,
+  IconButton
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 
 interface TabInfo {
@@ -24,32 +29,82 @@ export default function TabListTable() {
   const [tabs, setTabs] = useState<TabInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newTabName, setNewTabName] = useState("");
+  const [busy, setBusy] = useState<string | null>(null); // tên tab đang xử lý
+
+  async function fetchTabs() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/listTabs", { method: "GET" });
+      const text = await res.text();
+
+      try {
+        const data = JSON.parse(text);
+        if (data.success) {
+          setTabs(data.tabs);
+        } else {
+          setError(data.error || "Có lỗi xảy ra");
+        }
+      } catch {
+        console.error("❌ Response không phải JSON:", text);
+        setError("API trả về HTML thay vì JSON");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchTabs() {
-      try {
-        const res = await fetch("/api/listTabs", { method: "GET" });
-        const text = await res.text();
-
-        try {
-          const data = JSON.parse(text);
-          if (data.success) {
-            setTabs(data.tabs);
-          } else {
-            setError(data.error || "Có lỗi xảy ra");
-          }
-        } catch {
-          console.error("❌ Response không phải JSON:", text);
-          setError("API trả về HTML thay vì JSON");
-        }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchTabs();
   }, []);
+
+  // Xóa tab theo tên (có confirm)
+  async function handleDeleteTab(title: string) {
+    if (!window.confirm(`Xóa tab "${title}"? Không thể hoàn tác.`)) return;
+    setBusy(title);
+    try {
+      const res = await fetch(`/api/sheetTabs?title=${encodeURIComponent(title)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(`❌ ${data.error}`);
+        return;
+      }
+      await fetchTabs();
+    } catch (err: any) {
+      alert(`❌ ${err.message}`);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // Tạo tab mới (trống)
+  async function handleCreateTab() {
+    const title = newTabName.trim();
+    if (!title) return;
+    setBusy("__create__");
+    try {
+      const res = await fetch("/api/sheetTabs", {
+        method: "POST",
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(`❌ ${data.error}`);
+        return;
+      }
+      setNewTabName("");
+      await fetchTabs();
+    } catch (err: any) {
+      alert(`❌ ${err.message}`);
+    } finally {
+      setBusy(null);
+    }
+  }
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -143,7 +198,30 @@ const missingSheetNames = missingNumbers.map(i => `query-${i}`);
       >
         Danh sách Tabs trong Google Sheet
       </Typography>
-{/* 
+
+      {/* Tạo tab mới + làm mới */}
+      <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 2, flexWrap: "wrap" }}>
+        <TextField
+          label="Tên tab mới (vd: query-p4-1-kis)"
+          value={newTabName}
+          onChange={(e) => setNewTabName(e.target.value)}
+          size="small"
+          sx={{ width: 300 }}
+          onKeyDown={(e) => e.key === "Enter" && handleCreateTab()}
+        />
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreateTab}
+          disabled={busy === "__create__" || !newTabName.trim()}
+        >
+          Tạo tab
+        </Button>
+        <Button variant="outlined" onClick={fetchTabs} disabled={loading}>
+          Làm mới
+        </Button>
+      </Box>
+{/*
       <SubmissionButton/> */}
 
       <Table size="small">
@@ -155,6 +233,7 @@ const missingSheetNames = missingNumbers.map(i => `query-${i}`);
                 Cột {colIdx + 1}
               </TableCell>
             ))}
+            <TableCell sx={{ fontWeight: "bold" }}>Xóa</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -164,6 +243,16 @@ const missingSheetNames = missingNumbers.map(i => `query-${i}`);
               {Array.from({ length: maxCols }).map((_, colIdx) => (
                 <TableCell key={colIdx}>{tab.firstRow[colIdx] || ""}</TableCell>
               ))}
+              <TableCell>
+                <IconButton
+                  size="small"
+                  color="error"
+                  disabled={busy === tab.sheetName}
+                  onClick={() => handleDeleteTab(tab.sheetName)}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
 
