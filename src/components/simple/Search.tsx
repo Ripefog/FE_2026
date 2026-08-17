@@ -18,6 +18,7 @@ import { yellow } from "@mui/material/colors";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import SortIcon from "@mui/icons-material/Sort";
 
 import ResultModal from "../utils/SubmitTable";
 
@@ -38,7 +39,7 @@ export default function Search() {
     numQuery,
     setNumQuery,
   } = useSearchContext();
-  const { results, searching, handleSearch, cols, setCols } =
+  const { results, searching, handleRerank, reranking, handleSearch, cols, setCols } =
     useSearchResultContext();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -79,7 +80,7 @@ export default function Search() {
       num_query: numQuery,
     });
 
-    setCols(3);
+    setCols(4);
     fetchIgnoredImages(queryName);
   };
 
@@ -322,6 +323,19 @@ export default function Search() {
               }}
             >
               {searching ? "đang tìm kiếm..." : "Tìm kiếm"}
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleRerank}
+              disabled={reranking || searching || results.length === 0}
+              startIcon={<SortIcon />}
+              sx={{
+                backgroundColor: "#00897b",
+                "&:hover": { backgroundColor: "#00695c" },
+              }}
+            >
+              {reranking ? "đang rerank..." : "Rerank"}
             </Button>
 
             <Button

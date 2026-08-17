@@ -18,7 +18,6 @@ import { useState, useEffect } from "react";
 import { ImageGalleryProps } from "@/types/Query";
 
 import { base_folder } from "@/constants/keyframe";
-import { itemsPerPage } from "@/constants/keyframe";
 import { useSearchContext, useIgnoreContext } from "@/contexts/searchContext";
 import { useIgnoreImageContext } from "@/contexts/ignoreContext";
 
@@ -59,9 +58,11 @@ export default function ImageGallery( {results, cols, className }: ImageGalleryP
         );
     };
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedResults = results.slice(startIndex, startIndex + itemsPerPage);
-    const pageCount = Math.ceil(results.length / itemsPerPage);
+    // Lưới 4 hàng × số cột: 4 cột → 16 ảnh/trang (ảnh to, dễ nhìn hơn dàn 50 ảnh)
+    const perPage = Math.max(4, (Number(cols) || 4) * 4);
+    const startIndex = (currentPage - 1) * perPage;
+    const paginatedResults = results.slice(startIndex, startIndex + perPage);
+    const pageCount = Math.ceil(results.length / perPage);
 
     const [autoIgnore, setAutoIgnore] = useState(false);
     const [prevShowList, setPrevShowList] = useState<boolean[]>([]);
@@ -70,8 +71,8 @@ export default function ImageGallery( {results, cols, className }: ImageGalleryP
             // Trường hợp đang OFF -> Bật ON
             setPrevShowList(showList); // lưu trạng thái trước đó
 
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = startIndex + perPage;
 
             setShowList(prev =>
                 prev.map((val, i) => {

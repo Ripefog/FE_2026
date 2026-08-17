@@ -37,3 +37,16 @@ export const temporalSearch = async (searchPayload: SearchPayload) => {
     })
     return response.data
 }
+
+// Rerank lại danh sách keyframe hiện có theo query (cross-encoder trên BE)
+export const rerankSearch = async (searchPayload: SearchPayload, keyframeIds: string[]) => {
+    const response = await axiosClient.post(API_CONFIG.ENDPOINTS.SEARCH.RERANK, {
+        text_query: searchPayload.text_query,
+        mode: searchPayload.mode,
+        keyframe_ids: keyframeIds,
+        top_k: keyframeIds.length,
+        user_query: searchPayload.user_query,
+        num_query: searchPayload.num_query,
+    })
+    return response.data
+}

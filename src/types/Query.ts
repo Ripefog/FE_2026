@@ -44,6 +44,8 @@ export type SearchResultContextType = {
   results: any[];
   searching: boolean;
   handleSearch: (searchPaylod: SearchPayload) => void;
+  handleRerank: () => void;
+  reranking: boolean;
   cols: number | "";
   setCols: React.Dispatch<React.SetStateAction<number | "">>;
 };

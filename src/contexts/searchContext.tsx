@@ -46,13 +46,16 @@ export function useSearchContext() {
 const SearchResultContext = createContext<SearchResultContextType | undefined>(undefined);
 
 export function SearchResultProvider({ children }: { children: ReactNode }) {
-    const { results, searching, search } = useSearch();
+    const { results, searching, reranking, search, rerank } = useSearch();
     const handleSearch = (searchPayload: SearchPayload) => {
         search("simple", searchPayload);
     };
+    const handleRerank = () => {
+        rerank();
+    };
     const [cols, setCols] = useState<number | "">("")
     return (
-    <SearchResultContext.Provider value={{ results, searching, handleSearch, cols, setCols }}>
+    <SearchResultContext.Provider value={{ results, searching, handleRerank, reranking, handleSearch, cols, setCols }}>
       {children}
     </SearchResultContext.Provider>
   );

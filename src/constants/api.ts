@@ -7,7 +7,8 @@ export const API_CONFIG = {
     },
     SEARCH: {
       SIMPLE: '/search',
-      TEMPORAL: 'search/temporal'
+      TEMPORAL: 'search/temporal',
+      RERANK: '/search/rerank'
     },
   },
 //   TIMEOUT: 60000, // 60 seconds 
