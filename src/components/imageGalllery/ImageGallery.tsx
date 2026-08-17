@@ -208,7 +208,8 @@ export default function ImageGallery( {results, cols, className }: ImageGalleryP
                             <img
                                 src={imgSrc}
                                 alt={imgTitle}
-                                className={`w-full h-auto border rounded-8 ${showList[globalIndex] ? "opacity-100" : "opacity-40"}`}
+                                loading="lazy"
+                                className={`w-full h-auto aspect-video object-cover border rounded-8 ${showList[globalIndex] ? "opacity-100" : "opacity-40"}`}
                             />
 
                             {/* Overlay icon Hide/Show */}
