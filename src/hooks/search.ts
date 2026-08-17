@@ -44,9 +44,18 @@ export const useSearch = () => {
 
     setReranking(true);
     try {
-      const keyframeIds = results.map((r: any) => r.keyframe_id);
-      const data = await rerankSearch(payload, keyframeIds);
-      setResults(data?.results || []);
+      const frames = results.map((r: any) => ({
+        keyframe_id: r.keyframe_id as string,
+        score: r.score ?? null,
+      }));
+      const data = await rerankSearch(payload, frames);
+      // GroundingResult: {keyframe_id, grounding_score, final_score, ...} — map final_score về score của FE
+      const ranked: any[] = (data?.results || []).map((r: any) => ({
+        ...r,
+        score: r.final_score ?? r.retrieval_score ?? 0,
+      }));
+      ranked.sort((a, b) => b.score - a.score);
+      setResults(ranked);
     } catch (error) {
       console.error("Rerank error:", error);
       alert("Rerank thất bại — xem console để biết chi tiết");

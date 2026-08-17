@@ -38,15 +38,19 @@ export const temporalSearch = async (searchPayload: SearchPayload) => {
     return response.data
 }
 
-// Rerank lại danh sách keyframe hiện có theo query (cross-encoder trên BE)
-export const rerankSearch = async (searchPayload: SearchPayload, keyframeIds: string[]) => {
+// Rerank lại danh sách keyframe hiện có theo query (GroundingDINO trên BE)
+// Schema BE (RerankingSearchRequest): { query, frames: [{keyframe_id, retrieval_score?}], top_k? }
+export const rerankSearch = async (
+    searchPayload: SearchPayload,
+    frames: { keyframe_id: string; score?: number | null }[]
+) => {
     const response = await axiosClient.post(API_CONFIG.ENDPOINTS.SEARCH.RERANK, {
-        text_query: searchPayload.text_query,
-        mode: searchPayload.mode,
-        keyframe_ids: keyframeIds,
-        top_k: keyframeIds.length,
-        user_query: searchPayload.user_query,
-        num_query: searchPayload.num_query,
+        query: searchPayload.text_query,
+        frames: frames.map((f) => ({
+            keyframe_id: f.keyframe_id,
+            retrieval_score: f.score ?? null,
+        })),
+        top_k: frames.length,
     })
     return response.data
 }
