@@ -33,42 +33,32 @@ export default function Simple() {
                     containerClassName="w-screen h-screen grid min-h-0"
                     first={
                         <IgnoreProvider>
-                            {/* vạch ngang trái: kéo lên-xuống giữa Filter và gallery kết quả */}
-                            <SplitPane
-                                direction="rows"
-                                storageKey="simpleFilterRowPct"
-                                defaultFirstPct={DEFAULT_FILTER_ROW_PCT}
-                                first={
-                                    <SearchResultProvider>
-                                        <Filter/>
-                                    </SearchResultProvider>
-                                }
-                                second={
-                                    <SearchResultProvider>
-                                        <ImageResult/>
-                                    </SearchResultProvider>
-                                }
-                            />
+                            {/* 1 SearchResultProvider chung cho cả Filter lẫn gallery —
+                                tách riêng từng bên sẽ khiến gallery không nhận được results */}
+                            <SearchResultProvider>
+                                {/* vạch ngang trái: kéo lên-xuống giữa Filter và gallery kết quả */}
+                                <SplitPane
+                                    direction="rows"
+                                    storageKey="simpleFilterRowPct"
+                                    defaultFirstPct={DEFAULT_FILTER_ROW_PCT}
+                                    first={<Filter/>}
+                                    second={<ImageResult/>}
+                                />
+                            </SearchResultProvider>
                         </IgnoreProvider>
                     }
                     second={
                         <IgnoreProvider>
-                            {/* vạch ngang phải: kéo lên-xuống giữa Search và gallery kết quả */}
-                            <SplitPane
-                                direction="rows"
-                                storageKey="simpleSearchRowPct"
-                                defaultFirstPct={DEFAULT_SEARCH_ROW_PCT}
-                                first={
-                                    <SearchResultProvider>
-                                        <Search/>
-                                    </SearchResultProvider>
-                                }
-                                second={
-                                    <SearchResultProvider>
-                                        <ImageResult/>
-                                    </SearchResultProvider>
-                                }
-                            />
+                            <SearchResultProvider>
+                                {/* vạch ngang phải: kéo lên-xuống giữa Search và gallery kết quả */}
+                                <SplitPane
+                                    direction="rows"
+                                    storageKey="simpleSearchRowPct"
+                                    defaultFirstPct={DEFAULT_SEARCH_ROW_PCT}
+                                    first={<Search/>}
+                                    second={<ImageResult/>}
+                                />
+                            </SearchResultProvider>
                         </IgnoreProvider>
                     }
                 />
