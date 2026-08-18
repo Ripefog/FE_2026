@@ -31,6 +31,7 @@ export default function SubmitPage() {
   const [mode, setMode] = useState<"qa" | "trake" | null>(null);
   const [eventCount, setEventCount] = useState<number>(2);
   const [trakeFrames, setTrakeFrames] = useState<string[]>([]);
+  const [qaText, setQaText] = useState("");
 
 
 
@@ -46,7 +47,7 @@ const generateRows = (maxFrameId: number) => {
     order: 1,
     video_id: videoId,
     frame_id: String(baseFrame),
-    qa_text: "",
+    qa_text: qaText, // điền sẵn QA Text cho mọi hàng khi gen
   });
 
   // hàng 2–5: trống
@@ -97,7 +98,7 @@ const generateRows = (maxFrameId: number) => {
       order: i,
       video_id: videoId,
       frame_id: String(val),
-      qa_text: "",
+      qa_text: qaText,
     });
   }
 
@@ -251,7 +252,13 @@ const generateRows = (maxFrameId: number) => {
   variant="contained"
   onClick={async () => {
     if (!videoId) {
-      console.warn("❌ Chưa nhập videoId");
+      alert("Cần nhập Video ID trước khi Generate");
+      return;
+    }
+
+    // đang bật Enable QA: phải điền QA Text trước khi gen toàn bộ
+    if (mode === "qa" && qaText.trim() === "") {
+      alert("Đang bật Enable QA — cần nhập QA Text trước khi Generate");
       return;
     }
 
@@ -307,6 +314,17 @@ const generateRows = (maxFrameId: number) => {
               value={frameId}
               onChange={(e) => setFrameId(e.target.value)}
               size="small"
+            />
+          )}
+
+          {/* ô QA Text: chỉ hiện khi Enable QA, bắt buộc điền trước khi Generate */}
+          {mode === "qa" && (
+            <TextField
+              label="QA Text"
+              value={qaText}
+              onChange={(e) => setQaText(e.target.value)}
+              size="small"
+              sx={{ minWidth: 350 }}
             />
           )}
         </Box>
