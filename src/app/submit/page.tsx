@@ -35,33 +35,12 @@ export default function SubmitPage() {
 
 
 
-const generateRows = (maxFrameId: number) => {
-  const newRows: Row[] = [];
-
-  const baseFrame = parseInt(frameId, 10);
-  if (isNaN(baseFrame)) return;
-
-  // hàng 1: input
-  newRows.push({
-    id: 0,
-    order: 1,
-    video_id: videoId,
-    frame_id: String(baseFrame),
-    qa_text: qaText, // điền sẵn QA Text cho mọi hàng khi gen
-  });
-
-  // hàng 2–5: trống
-  // for (let i = 2; i <= 5; i++) {
-  //   newRows.push({
-  //     id: i - 1,
-  //     order: i,
-  //     video_id: videoId,
-  //     frame_id: "",
-  //     qa_text: "",
-  //   });
-  // }
-
+// Dãy 100 frame quanh frame neo theo đúng cách KIS gen:
+// phần tử 1 = frame neo, sau đó xen kẽ +offset*fps / -offset*fps,
+// kẹp trong [0, maxFrameId] (chạm biên thì chỉ còn 1 chiều)
+const buildFrameSequence = (baseFrame: number, maxFrameId: number): number[] => {
   const fpsVal = getFpsForVideo?.(videoId) ?? 1;
+  const seq: number[] = [baseFrame];
   let offset = 1;
   let mode: "normal" | "onlyUp" | "onlyDown" = "normal";
 
@@ -93,40 +72,53 @@ const generateRows = (maxFrameId: number) => {
       offset++;
     }
 
-    newRows.push({
-      id: i - 1,
-      order: i,
-      video_id: videoId,
-      frame_id: String(val),
-      qa_text: qaText,
-    });
+    seq.push(val);
   }
 
-  setRows(newRows);
+  return seq;
 };
 
-// TRAKE: mỗi lần Generate thêm 1 hàng gồm video + các frame (frame_id_1..N) đã nhập
-// (generateRows mở rộng ±fps quanh 1 frame neo nên không dùng được cho TRAKE)
-const generateTrakeRow = () => {
-  const frames = Array.from(
+// KIS (mặc định) / QA: 100 hàng ±fps quanh ô Frame ID, thay toàn bộ bảng
+const generateRows = (maxFrameId: number) => {
+  const baseFrame = parseInt(frameId, 10);
+  if (isNaN(baseFrame)) return;
+
+  setRows(
+    buildFrameSequence(baseFrame, maxFrameId).map((val, i) => ({
+      id: i,
+      order: i + 1,
+      video_id: videoId,
+      frame_id: String(val),
+      qa_text: qaText, // điền sẵn QA Text cho mọi hàng khi gen
+    }))
+  );
+};
+
+// TRAKE: 100 hàng giống y KIS — từng event (Frame 1..N) tự mở rộng ±fps
+// quanh frame neo của chính nó; cột nào để trống thì giữ trống cả 100 hàng
+// (điều kiện nhập đã kiểm tra trong onClick trước khi gọi)
+const generateTrakeRows = (maxFrameId: number) => {
+  const sequences = Array.from(
     { length: eventCount },
     (_, i) => (trakeFrames[i] ?? "").trim()
+  ).map((f) =>
+    f === "" ? null : buildFrameSequence(parseInt(f, 10), maxFrameId)
   );
-  if (!frames.some((f) => f !== "")) {
-    alert("Cần nhập ít nhất Frame 1 trước khi Generate (TRAKE)");
-    return;
-  }
 
-  const row: Row = {
-    id: rows.length > 0 ? Math.max(...rows.map((r) => r.id)) + 1 : 0,
-    order: rows.length + 1,
-    video_id: videoId,
-    frame_id: "", // TRAKE không dùng cột frame_id đơn (dùng frame_id_1..N)
-  };
-  frames.forEach((f, i) => {
-    row[`frame_id_${i + 1}`] = f;
+  const newRows: Row[] = Array.from({ length: 100 }, (_, i) => {
+    const row: Row = {
+      id: i,
+      order: i + 1,
+      video_id: videoId,
+      frame_id: "", // TRAKE không dùng cột frame_id đơn (dùng frame_id_1..N)
+    };
+    sequences.forEach((seq, j) => {
+      row[`frame_id_${j + 1}`] = seq ? String(seq[i]) : "";
+    });
+    return row;
   });
-  setRows([...rows, row]);
+
+  setRows(newRows);
 };
 
 
@@ -280,9 +272,27 @@ const generateTrakeRow = () => {
       return;
     }
 
-    // TRAKE: thêm 1 hàng từ các frame đã nhập, không cần mở rộng ±fps
+    // TRAKE: gen 100 hàng ±fps quanh từng frame đã nhập, giống hệt KIS
     if (mode === "trake") {
-      generateTrakeRow();
+      const frames = Array.from(
+        { length: eventCount },
+        (_, i) => (trakeFrames[i] ?? "").trim()
+      );
+      if (!frames.some((f) => f !== "")) {
+        alert("Cần nhập ít nhất Frame 1 trước khi Generate (TRAKE)");
+        return;
+      }
+      if (frames.some((f) => f !== "" && isNaN(parseInt(f, 10)))) {
+        alert("Frame của TRAKE phải là số trước khi Generate");
+        return;
+      }
+      const res = await fetch(`/api/max-frame-id?videoId=${videoId}`);
+      const data = await res.json();
+      if (data.error) {
+        console.error("Lỗi:", data.error);
+        return;
+      }
+      generateTrakeRows(data.maxFrameId);
       return;
     }
 
