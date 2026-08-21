@@ -105,6 +105,30 @@ const generateRows = (maxFrameId: number) => {
   setRows(newRows);
 };
 
+// TRAKE: mỗi lần Generate thêm 1 hàng gồm video + các frame (frame_id_1..N) đã nhập
+// (generateRows mở rộng ±fps quanh 1 frame neo nên không dùng được cho TRAKE)
+const generateTrakeRow = () => {
+  const frames = Array.from(
+    { length: eventCount },
+    (_, i) => (trakeFrames[i] ?? "").trim()
+  );
+  if (!frames.some((f) => f !== "")) {
+    alert("Cần nhập ít nhất Frame 1 trước khi Generate (TRAKE)");
+    return;
+  }
+
+  const row: Row = {
+    id: rows.length > 0 ? Math.max(...rows.map((r) => r.id)) + 1 : 0,
+    order: rows.length + 1,
+    video_id: videoId,
+    frame_id: "", // TRAKE không dùng cột frame_id đơn (dùng frame_id_1..N)
+  };
+  frames.forEach((f, i) => {
+    row[`frame_id_${i + 1}`] = f;
+  });
+  setRows([...rows, row]);
+};
+
 
 
   const downloadCSV = () => {
@@ -256,9 +280,20 @@ const generateRows = (maxFrameId: number) => {
       return;
     }
 
+    // TRAKE: thêm 1 hàng từ các frame đã nhập, không cần mở rộng ±fps
+    if (mode === "trake") {
+      generateTrakeRow();
+      return;
+    }
+
     // đang bật Enable QA: phải điền QA Text trước khi gen toàn bộ
     if (mode === "qa" && qaText.trim() === "") {
       alert("Đang bật Enable QA — cần nhập QA Text trước khi Generate");
+      return;
+    }
+
+    if (isNaN(parseInt(frameId, 10))) {
+      alert("Cần nhập Frame ID (số) trước khi Generate");
       return;
     }
 
