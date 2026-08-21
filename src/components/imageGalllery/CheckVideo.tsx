@@ -102,36 +102,24 @@ export default function CheckVideo({
     if (!openImage) return;
 
     const file2 = openImage.img.split("/").pop();
-    const delay = Math.floor(groupImages.length / 500) * 500 * 4;
 
-    // trì hoãn 1 tick để chắc chắn ref đã được gắn
-    setTimeout(() => {
+    // thumbnail có width cố định (style bên dưới) nên vị trí không phụ thuộc
+    // ảnh load xong chưa; trì hoãn 1 tick cho chắc chắn ref đã được gắn
+    const timer = setTimeout(() => {
       const el = file2 ? thumbRefs.current[file2] : null;
       const container = containerRef.current;
       if (el && container) {
-        container.scrollTo({
-          left: el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2,
-          behavior: "smooth",
-        });
-
-      } else {
+        // offsetLeft tính theo Dialog Paper (offsetParent) nên phải trừ vị trí container
+        const left =
+          el.offsetLeft -
+          container.offsetLeft -
+          container.clientWidth / 2 +
+          el.clientWidth / 2;
+        container.scrollTo({ left, behavior: "smooth" });
       }
-    }, delay);
+    }, 100);
+    return () => clearTimeout(timer);
   }, [openImage]);
-//   useLayoutEffect(() => {
-//   if (!openImage) return;
-
-//   const file2 = openImage.img.split("/").pop();
-//   const el = file2 ? thumbRefs.current[file2] : null;
-//   const container = containerRef.current;
-
-//   if (el && container) {
-//     container.scrollTo({
-//       left: el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2,
-//       behavior: "smooth",
-//     });
-//   }
-// }, [openImage]);
 
 
 
@@ -253,7 +241,11 @@ export default function CheckVideo({
                       alt={filename}
                       style={{
                         height: 80,
-                        width: "auto",
+                        // width cố định để dải filmstrip có layout ổn định ngay —
+                        // nếu để "auto" thì vị trí các thumb chỉ đúng sau khi ảnh load xong,
+                        // tính scroll sớm sẽ lệch hàng chục nghìn px với filmstrip dài
+                        width: 142,
+                        objectFit: "cover",
                         display: "block",
                         borderRadius: 6,
                         cursor: "pointer",

@@ -200,7 +200,10 @@ export default function ImageGallery( {results, cols, className }: ImageGalleryP
                 {paginatedResults.map((item, index) => {
                     const globalIndex = startIndex + index; // dùng để index vào showList
                     const filename = item.keyframe_id
-                    const imgSrc = `${base_folder}/${getFirstPart(filename)}/${getFirstTwoParts(filename)}/${filename}`; // mặc định
+                    // base_folder đã có "/" cuối ("/assets/") — ghép thêm "/" nữa sẽ ra "//",
+                    // ảnh vẫn hiện nhưng so sánh src với thumbnail trong CheckVideo sẽ fail (mất viền vàng đánh dấu frame hiện tại)
+                    const base = base_folder.endsWith("/") ? base_folder : `${base_folder}/`;
+                    const imgSrc = `${base}${getFirstPart(filename)}/${getFirstTwoParts(filename)}/${filename}`; // mặc định
                     const imgTitle = `${item.keyframe_id}`;
 
                     return (
