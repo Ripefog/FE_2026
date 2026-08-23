@@ -52,7 +52,9 @@ export default function TranscriptPanel({ videoId, folder, currentTimestamp }: T
         block: "center",
       });
     }
-  }, [currentTimestamp]);
+    // phải phụ thuộc cả transcript: lần mở dialog đầu tiên effect chạy khi
+    // transcript chưa fetch xong (chưa có dòng active để cuộn tới)
+  }, [currentTimestamp, transcript]);
 
   function formatDuration(seconds: number): string {
     const min = Math.floor(seconds / 60);
