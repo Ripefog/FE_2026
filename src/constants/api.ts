@@ -8,6 +8,7 @@ export const API_CONFIG = {
     SEARCH: {
       SIMPLE: '/search',
       TEMPORAL: 'search/temporal',
+      TRAKE: '/search/trake',
       RERANK: '/search/rerank'
     },
   },

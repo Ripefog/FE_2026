@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -91,6 +92,27 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               </ListItemIcon>
               <ListItemText
                 primary="Simple search"
+                slotProps={{
+                  primary: {
+                    sx: {
+                      fontFamily: 'monospace',
+                      fontWeight: 600,
+                    },
+                  },
+                }}
+              />
+            </ListItemButton>
+
+            {/* TRAKE temporal search → router.push */}
+            <ListItemButton
+              onClick={() => router.push('/trake')}
+              sx={{ gap: 0.5, minHeight: 40 }}
+            >
+              <ListItemIcon sx={{ minWidth: 30 }}>
+                <TimelineIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="TRAKE search"
                 slotProps={{
                   primary: {
                     sx: {

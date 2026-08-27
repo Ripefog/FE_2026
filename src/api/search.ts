@@ -1,6 +1,7 @@
 import { axiosClient } from "./axiosClient";
 import { API_CONFIG } from "@/constants/api";
 import { SearchPayload} from "@/types/Search";
+import { TrakeSearchPayload, TrakeSearchResponse } from "@/types/Trake";
 
 export const simpleSearch = async (searchPayload: SearchPayload) => {
     // const username = localStorage.getItem("username") || "Unknown User";
@@ -35,6 +36,13 @@ export const temporalSearch = async (searchPayload: SearchPayload) => {
     const response = await axiosClient.post(API_CONFIG.ENDPOINTS.SEARCH.TEMPORAL, {
         searchPayload
     })
+    return response.data
+}
+
+// TRAKE: tìm chuỗi khung hình tuần tự (nhiều sự kiện) trong cùng 1 video — POST /search/trake
+// BE chạy Viterbi forward-backward trên top-k từng query rồi ghép sequence thỏa min/max_time_gap
+export const trakeSearch = async (payload: TrakeSearchPayload): Promise<TrakeSearchResponse> => {
+    const response = await axiosClient.post(API_CONFIG.ENDPOINTS.SEARCH.TRAKE, payload)
     return response.data
 }
 
