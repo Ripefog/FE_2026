@@ -249,9 +249,9 @@ export default function Search() {
             >
               <FormControlLabel value="metaclip2" control={<Radio />} label="MetaCLIP2" />
               <FormControlLabel
-                value="beit3"
+                value="siglip2"
                 control={<Radio />}
-                label="BEIT3"
+                label="SigLIP 2"
               />
               <FormControlLabel
                 value="hybrid"
