@@ -39,6 +39,26 @@ export default function ExportButton({ rows, queryName, mode, eventCount }: Expo
   setStatus("loading");
   setMessage("Đang export dữ liệu...");
 
+  // Phải mở tab NGAY TRONG cú click (trước await fetch) — window.open sau await
+  // mất ngữ cảnh user gesture nên bị trình duyệt chặn popup, sheet không mở.
+  // Tab mở trước với trang chờ, xong export mới trỏ nó tới URL sheet.
+  const tab = window.open("", "_blank");
+  if (tab) {
+    tab.document.write(
+      '<html><head><title>Đang export…</title></head><body style="font-family:monospace;padding:24px">Đang export dữ liệu ra Google Sheet…</body></html>'
+    );
+  }
+
+  const closeTab = () => {
+    if (tab) {
+      try {
+        tab.close();
+      } catch {
+        // tab có thể đã đóng
+      }
+    }
+  };
+
   try {
     const res = await fetch("/api/export", {
       method: "POST",
@@ -47,20 +67,28 @@ export default function ExportButton({ rows, queryName, mode, eventCount }: Expo
     const json = await res.json();
 
     if (json.needConfirm) {
+      closeTab(); // cần xác nhận replace — không mở sheet, đóng tab chờ
       setStatus("confirm");
       setMessage(json.message);
-      setSheetName(json.sheetName); 
+      setSheetName(json.sheetName);
       setPendingData({ rows, queryName, mode, eventCount });
     } else if (json.success) {
       setStatus("success");
       setMessage("Xuất dữ liệu thành công!");
       setTimeout(() => setOpen(false), 1500);
-      window.open(json.url, "_blank");
+      if (tab && !tab.closed) {
+        tab.location.href = json.url;
+      } else {
+        // fallback nếu tab chờ bị người dùng đóng sẵn
+        window.open(json.url, "_blank");
+      }
     } else {
+      closeTab();
       setStatus("error");
       setMessage("Lỗi: " + json.error);
     }
   } catch (err: any) {
+    closeTab();
     setStatus("error");
     setMessage("Lỗi kết nối đến server: " + err.message);
   }
