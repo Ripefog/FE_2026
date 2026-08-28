@@ -31,7 +31,7 @@ export default function TrakeSearchBar({ searching, onSearch }: Props) {
   // mỗi phần tử = text query cho 1 sự kiện, theo thứ tự thời gian
   const [events, setEvents] = useState<string[]>(["", "", ""]);
   const [mode, setMode] = useState("hybrid"); // BE mặc định hybrid (RRF MetaCLIP2 + SigLIP2)
-  const [topKPerQuery, setTopKPerQuery] = useState("50"); // 1..200 (giới hạn BE)
+  const [topKPerQuery, setTopKPerQuery] = useState("50"); // 1..1000 (BE cũ giới hạn 200 — cần nâng Field le= ở BE)
   const [minGap, setMinGap] = useState("1");
   const [maxGap, setMaxGap] = useState("300");
   const [topSeq, setTopSeq] = useState("10"); // 1..50
@@ -65,8 +65,8 @@ export default function TrakeSearchBar({ searching, onSearch }: Props) {
       return;
     }
     const kq = parseInt(topKPerQuery, 10);
-    if (isNaN(kq) || kq < 1 || kq > 200) {
-      showPopup("Top K mỗi query phải từ 1 đến 200");
+    if (isNaN(kq) || kq < 1 || kq > 1000) {
+      showPopup("Top K mỗi query phải từ 1 đến 1000");
       return;
     }
     const ts = parseInt(topSeq, 10);
@@ -151,7 +151,7 @@ export default function TrakeSearchBar({ searching, onSearch }: Props) {
             size="small"
             value={topKPerQuery}
             onChange={(e) => setTopKPerQuery(e.target.value)}
-            slotProps={{ htmlInput: { min: 1, max: 200 } }}
+            slotProps={{ htmlInput: { min: 1, max: 1000 } }}
             sx={{ width: 120 }}
           />
           <TextField

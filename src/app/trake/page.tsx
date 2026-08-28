@@ -31,11 +31,15 @@ export default function TrakePage() {
       setTab(0); // về tab chuỗi sau mỗi lần search
     } catch (e: any) {
       console.error("TRAKE search error:", e);
-      setError(
-        e?.response?.status === 422
-          ? "BE từ chối payload (422) — kiểm tra lại tham số (Top K ≤ 200, số sequences ≤ 50…)"
-          : "Tìm kiếm TRAKE thất bại — xem console để biết chi tiết"
-      );
+      if (e?.response?.status === 422) {
+        // FastAPI trả detail[] chỉ đúng field vượt giới hạn (vd top_k_per_query > max BE cho phép)
+        const detail = e?.response?.data?.detail;
+        setError(
+          `BE từ chối payload (422): ${typeof detail === "string" ? detail : JSON.stringify(detail ?? "tham số không hợp lệ")}`
+        );
+      } else {
+        setError("Tìm kiếm TRAKE thất bại — xem console để biết chi tiết");
+      }
       setResponse(null);
     } finally {
       setSearching(false);
