@@ -81,16 +81,16 @@ export default function TrakePage() {
                     ))}
                   </Tabs>
 
-                  <Box className="flex-1 min-h-0 overflow-hidden">
+                  {/* wrapper này là vùng cuộn duy nhất của kết quả —
+                      component bên trong phải cao tự nhiên (h-auto), không tự overflow */}
+                  <Box className="flex-1 min-h-0 overflow-y-auto">
                     {tab === 0 && <TrakeSequences sequences={response.temporal_sequences} />}
                     {tab >= 1 && (
-                      <Box className="w-full h-full overflow-y-auto">
-                        <ImageGallery
-                          results={response.query_results[tab - 1] || []}
-                          cols={5}
-                          className="w-full h-full"
-                        />
-                      </Box>
+                      <ImageGallery
+                        results={response.query_results[tab - 1] || []}
+                        cols={5}
+                        className="w-full h-auto"
+                      />
                     )}
                   </Box>
                 </>

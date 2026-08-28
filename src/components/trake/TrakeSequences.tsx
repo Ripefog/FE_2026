@@ -64,7 +64,9 @@ export default function TrakeSequences({ sequences }: { sequences: TemporalSeque
   }
 
   return (
-    <Box className="w-full flex flex-col gap-2 p-2 overflow-y-auto">
+    // không tự overflow — wrapper tab ở page mới là vùng cuộn (tự overflow ở đây sẽ
+    // khiến chiều cao tự giãn ra ngoài khung và bị cắt, không cuộn được)
+    <Box className="w-full flex flex-col gap-2 p-2">
       {sequences.map((seq) => (
         <Card key={seq.sequence_id} variant="outlined">
           <CardContent className="!pb-2">
