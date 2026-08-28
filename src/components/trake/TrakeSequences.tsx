@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Card, CardContent, Chip, Typography } from "@mui/material";
+import { Box, Card, CardContent, Chip, Tooltip, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import { TemporalSequence } from "@/types/Trake";
@@ -67,12 +67,17 @@ export default function TrakeSequences({ sequences }: { sequences: TemporalSeque
     // không tự overflow — wrapper tab ở page mới là vùng cuộn (tự overflow ở đây sẽ
     // khiến chiều cao tự giãn ra ngoài khung và bị cắt, không cuộn được)
     <Box className="w-full flex flex-col gap-2 p-2">
-      {sequences.map((seq) => (
+      {sequences.map((seq, idx) => (
         <Card key={seq.sequence_id} variant="outlined">
           <CardContent className="!pb-2">
             {/* header: điểm + thời gian của cả chuỗi */}
             <Box className="flex items-center gap-1 flex-wrap" sx={{ mb: 1 }}>
-              <Chip label={`#${seq.sequence_id}`} size="small" color="primary" />
+              {/* Top N = vị trí hiển thị (BE trả đã sort theo sequence_score giảm dần);
+                  id là định danh nội bộ của BE — không trùng thứ hạng nên đưa xuống tooltip */}
+              <Chip label={`Top ${idx + 1}`} size="small" color="primary" />
+              <Tooltip title={`sequence_id nội bộ của BE: ${seq.sequence_id}`}>
+                <Chip label={`#${seq.sequence_id}`} size="small" variant="outlined" sx={{ cursor: "help" }} />
+              </Tooltip>
               <Chip label={seq.video_id} size="small" sx={{ fontFamily: "monospace", fontWeight: "bold" }} />
               <Chip
                 size="small"
